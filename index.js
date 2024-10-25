@@ -23,17 +23,21 @@ app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-app.get(
-  '/api/:date',
-  (req, res, next) => {
-    req.date = new Date().toString();
-    req.unix = Date.now();
-    next();
-  },
-  (req, res) => {
-    res.json({ unix: req.unix, utc: req.date });
+app.get('/api/:date?', (req, res) => {
+  const { date } = req.params;
+  const dateToNum = Number(date);
+  if (dateToNum) {
+    const unix = dateToNum;
+    const newDate = new Date(unix + 1000);
+    const utc = newDate.toUTCString();
+    res.json({ unix: unix, utc: utc });
+  } else {
+    const newDate = new Date(date);
+    const unix = newDate.getTime();
+    const utc = newDate.toUTCString();
+    res.json({ unix: unix, utc: utc });
   }
-);
+});
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
